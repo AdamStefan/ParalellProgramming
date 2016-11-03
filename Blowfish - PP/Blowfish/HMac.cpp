@@ -55,10 +55,10 @@ HMac::HMac(std::string key)
 }
 
 
-std::string HMac::ComputeHash(char* M)
+std::string HMac::ComputeHash(char* M, int length)
 {
 	SHA1 sha1, sha2;
-	std::string message = std::string(M);	
+	std::string message = std::string(M, length);
 	char* keyPadAndM = new char[message.length() + 64];
 
 	memcpy(keyPadAndM, i_key_pad, sizeof(char) * 64);
@@ -88,7 +88,7 @@ std::string HMac::ComputeHash(char* M)
 std::string HMac::ComputeHash(std::istream&is)
 {
 	SHA1 sha1, sha2;
-	sha1.update(is, this->i_key_pad);
+	sha1.update(is, std::string(this->i_key_pad, 64));
 	std::string hashed = sha1.final();
 
 	// concatenate o_key and hash	

@@ -5,8 +5,8 @@
 class HMac {
 public:
 	HMac(std::string);
-	std::string HMac::ComputeHash(char* M);
-	std::string HMac::ComputeHash(std::istream&is);	
+	std::string ComputeHash(char* M, int length);
+	std::string ComputeHash(std::istream&is);	
 private:
 	char* o_key_pad;
 	char* i_key_pad;

@@ -45,6 +45,14 @@ using namespace std;
 typedef unsigned char byte;
 
 
+struct membuf : std::streambuf
+{
+	membuf(char* begin, char* end) {
+		this->setg(begin, begin, end);
+	}
+};
+
+
 
 int encryptAndHash(string  fileName, string destinationFileName, string secret)
 {
@@ -73,9 +81,12 @@ int encryptAndHash(string  fileName, string destinationFileName, string secret)
 	byte* result = bf.Encrypt_ECB((byte*)memblock, size, &newlen);
 	delete[]memblock;
 
-	HMac hmac1(secret.c_str());
-	string hash = hmac1.ComputeHash((char*)result);
+	membuf sbuf((char*)result, (char*)(result + newlen));
+	std::istream in(&sbuf);
 
+	HMac hmac1(secret.c_str());
+	string hash = hmac1.ComputeHash(in);
+	
 
 	ofstream outputFile;
 	outputFile.open(destinationFileName.c_str(), ios::out | ios::binary);
@@ -111,8 +122,11 @@ int decryptAndCheckHash(string fileName, string destinationFileName, string secr
 		throw std::exception("Cannot open source file");
 	}
 
+	membuf sbuf(memblock, memblock + (size - SHA1::HASH_HEX_LENGTH));
+	std::istream in(&sbuf);
+
 	HMac hmac1(secret);
-	string computedHashVal = hmac1.ComputeHash(memblock);
+	string computedHashVal = hmac1.ComputeHash(in);	
 	string fileDigest = std::string(hash);
 	bool areEqual = true;
 
@@ -156,6 +170,8 @@ int decryptAndCheckHash(string fileName, string destinationFileName, string secr
 	return 1;
 }
 
+//-e "input" "outputImage" "FEDCBA9876543210"
+
 //blowfishalgorithm.exe -e "input.JPG" "outputImage.dat" "FEDCBA9876543210"
 //blowfishalgorithm.exe -d "outputImage.dat" "inputToCheck.JPG" "FEDCBA9876543210"
 
@@ -169,18 +185,19 @@ int main(int argc, char** argv)
 	string destinationFileName;
 	string key;
 
+	//-e "input.JPG" "outputImage.dat" "FEDCBA9876543210"
 	//-e "c:\\IMGP3835.JPG" "C:\\OutputIMGP.JPG" "FEDCBA9876543210"
 
-	/*sourceFileName = "c:\\IMGP3835.JPG";
-	destinationFileName = "C:\\outputTest.dat";*/
+	/*sourceFileName = "c:\\test.txt";
+	destinationFileName = "C:\\test.dat";*/
 
 	sourceFileName = "c:\\preloadedData.csv";
-	destinationFileName = "C:\\preloadedDataCriptat.dat";
-	key = "FEDCBA9876543210";
+	destinationFileName = "C:\\preloadedDataCriptat.dat";	
+	key = "FEDCBA9876543210";	
+		
+		
 
-
-	destinationFileName = "c:\\outputImage.JPG";
-	bool perftest = false;
+	bool perftest = true;
 
 	argv++;
 	if (!perftest)

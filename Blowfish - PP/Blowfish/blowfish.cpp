@@ -1,4 +1,6 @@
 #include "stdafx.h"
+//#include <cilk/cilk.h>
+
 
 
 BLOWFISH::BLOWFISH(std::string hexKey)

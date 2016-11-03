@@ -59,11 +59,11 @@ void SHA1::update(std::istream &is)
 	}
 }
 
-void SHA1::update(std::istream&is, char* leftPaddingBlock)
+void SHA1::update(std::istream&is, std::string leftPaddingBlock)
 {
 
 	uint32 firstBlock[BLOCK_INTS];
-	buffer_to_block(std::string(leftPaddingBlock), firstBlock);
+	buffer_to_block(leftPaddingBlock, firstBlock);
 	transform(firstBlock);
 
 	std::string rest_of_buffer;
