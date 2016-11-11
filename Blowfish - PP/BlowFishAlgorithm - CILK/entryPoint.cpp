@@ -119,7 +119,7 @@ int decryptAndCheckHash(string fileName, string destinationFileName, string secr
 	}
 	else
 	{
-		throw std::exception("Cannot open source file");
+		throw std::runtime_error("Cannot open source file");
 	}
 
 	membuf sbuf(memblock, memblock + (size - SHA1::HASH_HEX_LENGTH));
@@ -140,7 +140,7 @@ int decryptAndCheckHash(string fileName, string destinationFileName, string secr
 
 	if (!areEqual)
 	{
-		throw std::exception("Invalid hash");
+		throw std::runtime_error("Invalid hash");
 		return 0;
 	}
 
@@ -161,7 +161,7 @@ int decryptAndCheckHash(string fileName, string destinationFileName, string secr
 	}
 	else
 	{
-		throw std::exception("Cannot open destination file");
+		throw std::runtime_error("Cannot open destination file");
 		return -1;
 	}
 

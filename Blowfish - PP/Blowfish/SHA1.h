@@ -28,7 +28,7 @@ public:
 	SHA1();
 	void update(const std::string &s);
 	void update(std::istream &is);
-	void SHA1::update(std::istream&is, std::string leftPaddingBlock);
+	void update(std::istream&is, std::string leftPaddingBlock);
 	std::string final();
 	static std::string from_file(const std::string &filename);
 	static const unsigned int HASH_HEX_LENGTH = 40;
