@@ -44,11 +44,11 @@ public:
 
 protected:
 	void SetupKey(byte* cipherKey, int length);
-	void encipher();
-	void decipher();
+	void encipher(unsigned int* xl_par, unsigned int* xr_par);
+	void decipher(unsigned int* xl_par, unsigned int* xr_par);
 	unsigned int round(unsigned int a, unsigned int b, unsigned int n);
-	void setblock(byte* block, int offset);
-	void getblock(byte* block, int offset);
+	void setblock(byte* block, int offset, unsigned int* xl_par, unsigned int* xr_par);
+	void getblock(byte* block, int offset, unsigned int* xl_par, unsigned int* xr_par);
 	static unsigned int p[];
 	static unsigned int s0[];
 	static unsigned int s1[];
@@ -287,8 +287,8 @@ protected:
 	//	0x7824035a, 0x3b57e2d5, 0x8e78aed1, 0xe90dc600
 	//};
 
-	unsigned int xl_par;
-	unsigned int xr_par;
+	/*unsigned int xl_par;
+	unsigned int xr_par;*/
 
 	byte IV[8];
 

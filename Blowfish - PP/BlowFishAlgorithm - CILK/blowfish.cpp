@@ -246,34 +246,42 @@ byte* BLOWFISH::GetIV()
 
 void BLOWFISH::Encrypt_Block(byte* block, int offset)
 {
-	setblock(block, offset);
-	encipher();
-	getblock(block, offset);
+	unsigned int xl_par = 0;
+	unsigned int xr_par = 0;
+
+	setblock(block, offset, &xl_par, &xr_par);
+	encipher(&xl_par, &xr_par);
+	getblock(block, offset, &xl_par, &xr_par);
 }
 
 void BLOWFISH::Decrypt_Block(byte* block, int offset)
 {
-	setblock(block, offset);
-	decipher();
-	getblock(block, offset);
+	unsigned int xl_par = 0;
+	unsigned int xr_par = 0;
+
+	setblock(block, offset, &xl_par, &xr_par);
+	decipher(&xl_par, &xr_par);
+	getblock(block, offset, &xl_par, &xr_par);
 }
 
-void BLOWFISH::setblock(byte* block, int offset)
+void BLOWFISH::setblock(byte* block, int offset, unsigned int* xl_par, unsigned int* xr_par)
 {
 	//TODO: CHECK ENDIANNESS
-	xr_par = 0; xl_par = 0;
+	*xl_par = 0;
+	*xr_par = 0; 
+
 	for (int i = 0; i < 4; i++)
 	{
-		xl_par = (xl_par << 8) + block[offset + i];
-		xr_par = (xr_par << 8) + block[4 + offset + i];
+		*xl_par = (*xl_par << 8) + block[offset + i];
+		*xr_par = (*xr_par << 8) + block[4 + offset + i];
 	}
 }
 
-void BLOWFISH::getblock(byte* block, int offset)
+void BLOWFISH::getblock(byte* block, int offset,  unsigned int* xl_par, unsigned int* xr_par )
 {
 	//TODO: CHECK ENDIANNESS
-	unsigned int xl = xl_par;
-	unsigned int xr = xr_par;
+	unsigned int xl = *xl_par;
+	unsigned int xr = *xr_par;
 	for (int i = 3; i >= 0; i--)
 	{
 		block[i + offset] = xl % 256;
@@ -303,74 +311,74 @@ void BLOWFISH::SetupKey(byte* cipherKey, int length)
 		j = (j + 4) % length;
 	}
 
-	xl_par = 0;
-	xr_par = 0;
+	unsigned int xl_par = 0;
+	unsigned int xr_par = 0;
 
 	for (int i = 0; i < 18; i += 2)
 	{
-		encipher();
+		encipher(&xl_par, &xr_par);
 		p[i] = xl_par;
 		p[i + 1] = xr_par;
 	}
 
 	for (int i = 0; i < 256; i += 2)
 	{
-		encipher();
+		encipher(&xl_par, &xr_par);
 		s0[i] = xl_par;
 		s0[i + 1] = xr_par;
 	}
 
 	for (int i = 0; i < 256; i += 2)
 	{
-		encipher();
+		encipher(&xl_par, &xr_par);
 		s1[i] = xl_par;
 		s1[i + 1] = xr_par;
 	}
 
 	for (int i = 0; i < 256; i += 2)
 	{
-		encipher();
+		encipher(&xl_par, &xr_par);
 		s2[i] = xl_par;
 		s2[i + 1] = xr_par;
 	}
 
 	for (int i = 0; i < 256; i += 2)
 	{
-		encipher();
+		encipher(&xl_par, &xr_par);
 		s3[i] = xl_par;
 		s3[i + 1] = xr_par;
 	}
 
 }
 
-void BLOWFISH::encipher()
+void BLOWFISH::encipher(unsigned int* xl_par, unsigned int* xr_par)
 {
-	xl_par ^= p[0];
+	*xl_par ^= p[0];
 	for (int i = 0; i < ROUNDS; i += 2)
 	{
-		xr_par = round(xr_par, xl_par, i + 1);
-		xl_par = round(xl_par, xr_par, i + 2);
+		*xr_par = round(*xr_par, *xl_par, i + 1);
+		*xl_par = round(*xl_par, *xr_par, i + 2);
 	}
-	xr_par ^= p[ROUNDS + 1];
+	*xr_par ^= p[ROUNDS + 1];
 
-	unsigned int swap = xl_par;
-	xl_par = xr_par;
-	xr_par = swap;
+	unsigned int swap = *xl_par;
+	*xl_par = *xr_par;
+	*xr_par = swap;
 }
 
-void BLOWFISH::decipher()
+void BLOWFISH::decipher(unsigned int* xl_par, unsigned int* xr_par)
 {
-	xl_par ^= p[ROUNDS + 1];
+	*xl_par ^= p[ROUNDS + 1];
 	for (int i = ROUNDS; i > 0; i -= 2)
 	{
-		xr_par = round(xr_par, xl_par, i);
-		xl_par = round(xl_par, xr_par, i - 1);
+		*xr_par = round(*xr_par, *xl_par, i);
+		*xl_par = round(*xl_par, *xr_par, i - 1);
 	}
-	xr_par ^= p[0];
+	*xr_par ^= p[0];
 
-	unsigned int swap = xl_par;
-	xl_par = xr_par;
-	xr_par = swap;
+	unsigned int swap = *xl_par;
+	*xl_par = *xr_par;
+	*xr_par = swap;
 }
 
 unsigned int BLOWFISH::round(unsigned int a, unsigned int b, unsigned int n)
